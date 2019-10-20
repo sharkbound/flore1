@@ -1,9 +1,9 @@
 """/////////////////////////
 ///
-///   File: TEXTASSET/TEXTSPRITE/__init__.py
+///   File: VIRTUALSCENE/__init__.py
 ///   Author: Anicet Nougaret
 ///   License: CC BY-SA (see FLORE1/license.txt)
 ///
 /////////////////////////"""
 
-from .textSprite import *
+from .virtualscene import *

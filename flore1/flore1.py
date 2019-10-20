@@ -14,7 +14,9 @@ import os
 
 from PIL import Image
 from .util import get_palette_in_rgb, nearest_rgb_to_ansi
-from .ansiRGB import ANSI_RGB
+from .ansirgb import ANSI_RGB
+
+
 # ------------------------------------------------------------
 
 
@@ -22,7 +24,8 @@ from .ansiRGB import ANSI_RGB
 # ------------------    FLIPBOOK CLASS   ---------------------
 # ------------------------------------------------------------
 class Flipbook:
-    def __init__(self, Engine, Refresh, Sprite, path="", size=[32, 32], transparent_rgb=(-1, -1, -1), fps=24, sync="True"):
+    def __init__(self, Engine, Refresh, Sprite, path="", size=[32, 32], transparent_rgb=(-1, -1, -1), fps=24,
+                 sync="True"):
         self.Refresh = Refresh
         self.asset_list = []
         if not os.path.exists(path): return
@@ -45,7 +48,7 @@ class Flipbook:
                 else:
                     play.speed = fps_ratio
 
-            #print("\033["+str(len(asset_list))+";1H "+("%2s" % str(play.i)))
+            # print("\033["+str(len(asset_list))+";1H "+("%2s" % str(play.i)))
             play.frame = play.speed * play.i
             crt_frame = math.floor(play.frame)
             if crt_frame >= len(asset_list):
@@ -60,15 +63,17 @@ class Flipbook:
         play.sync = sync
         self.material = (play, Sprite, self.asset_list, fps)
 
-# ------------------------------------------------------------
+    # ------------------------------------------------------------
 
     def start(self):
         self.Refresh.feed(*self.material)
 
-# ------------------------------------------------------------
+    # ------------------------------------------------------------
 
     def stop(self):
         self.Refresh.terminate(*self.material)
+
+
 # ------------------------------------------------------------
 
 
@@ -82,17 +87,17 @@ class Refresh:
         self.i = 0
         self.stack = []
 
-# ------------------------------------------------------------
+    # ------------------------------------------------------------
 
     def terminate(self, func, *args, **kwargs):
         self.stack.remove((func, args, kwargs))
 
-# ------------------------------------------------------------
+    # ------------------------------------------------------------
 
     def feed(self, func, *args, **kwargs):
         self.stack.append((func, args, kwargs))
 
-# ------------------------------------------------------------
+    # ------------------------------------------------------------
 
     def do(self):
         for func, args, kwargs in self.stack:
@@ -101,14 +106,14 @@ class Refresh:
             if not hasattr(func, "i"):
                 func.i = 0
             else:
-                if func.sync == True:
+                if func.sync:
                     func.i += round(self.i / self.turn)
                 else:
                     func.i += 1
 
             func(self, *args, **kwargs)
 
-# ------------------------------------------------------------
+    # ------------------------------------------------------------
 
     def run(self, debug=False):
         start = time.time()
@@ -166,6 +171,8 @@ class Refresh:
 
             otp = "\33[0m\033[5;0H|\u001b[48;5;16m\u001b[38;5;15m  SKIPPED_FRAMES_NOW: "
             print(otp + str(frames_to_skip) + " ")
+
+
 # ------------------------------------------------------------
 
 
@@ -174,33 +181,33 @@ class Refresh:
 # ------------------------------------------------------------
 class Engine:
     def __init__(self, auto_scale=False, win_mode=False):
-        print(chr(27) + "[H" + chr(27) + "[J")
+        print(f'{chr(27)}[H"{chr(27)}[J')
         self.vscenes = {}
         self.auto_scale = auto_scale
 
-        if win_mode == True:
+        if win_mode:
             kernel32 = ctypes.windll.kernel32
-            kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
+        kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
-
-    from .VIRTUALSCENE.virtualScene import VirtualScene
-    from .TEXTASSET.textAsset import TextAsset
+        # from .virtualscene import VirtualScene
+        # from .textasset import TextAsset
 
     def new_scene(self, name, coord_x, coord_y, res_x, res_y, layer_count):
-        self.vscenes[name] = self.VirtualScene(coord_x, coord_y, res_x, res_y, layer_count, self.auto_scale)
+        from .virtualscene import VirtualScene
+        self.vscenes[name] = VirtualScene(coord_x, coord_y, res_x, res_y, layer_count, self.auto_scale)
         return self.vscenes[name]
 
-# ------------------------------------------------------------
+    # ------------------------------------------------------------
 
     def del_scene(self, name):
         del self.vs[name]
 
-# ------------------------------------------------------------
+    # ------------------------------------------------------------
 
     def new_sprite(self):
         return self.TextAsset.TextSprite()
 
-# ------------------------------------------------------------
+    # ------------------------------------------------------------
 
     def find_trsprt_index(self, rgb_palette, transparent_RGB):
         if transparent_RGB in rgb_palette:
@@ -208,7 +215,7 @@ class Engine:
         else:
             return None
 
-# ------------------------------------------------------------
+    # ------------------------------------------------------------
 
     def pic_to_textAsset(self, path, new_size="AUTO", transparent_rgb=(-1, -1, -1)):
         img_file = Image.open(path)
@@ -237,9 +244,9 @@ class Engine:
             found_black = False
             i = 0
             while i < len(rgb_palette):
-                if rgb_palette[i] == (0, 0, 0) and found_black == False:
+                if rgb_palette[i] == (0, 0, 0) and not found_black:
                     found_black = True
-                elif rgb_palette[i] == (0, 0, 0) and found_black == True:
+                elif rgb_palette[i] == (0, 0, 0) and found_black:
                     del rgb_palette[i]
                     i -= 1
                 i += 1
@@ -259,7 +266,7 @@ class Engine:
             for x in range(0, xs):
                 ci = img[x, y]
                 code = ansi_palette[ci]
-                #print("%s%2s" % (("\33["+str(y)+";"+str((x*2)+1)+"H"),"\33[38;5;"+str(ci)+"m@@"))
+                # print("%s%2s" % (("\33["+str(y)+";"+str((x*2)+1)+"H"),"\33[38;5;"+str(ci)+"m@@"))
 
                 if code != pv_code:
                     pixel = "bc:" + str(code) + "  "

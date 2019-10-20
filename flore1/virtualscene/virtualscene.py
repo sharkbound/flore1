@@ -1,6 +1,6 @@
 """/////////////////////////
 ///
-///   File: VIRTUALSCENE/virtualScene.py
+///   File: virtualscene/virtualscene.py
 ///   Author: Anicet Nougaret
 ///   QuickDesc: The Engine's subclass managing scenes and
 ///              display virtualization. It also prints
@@ -38,7 +38,7 @@ class VirtualScene:
 
         self.frame_event = False
 
-        if scale == True:
+        if scale :
             os.system('mode con: cols=' + str(res_x * 2 + coord_x * 4) + ' lines=' + str(res_y + coord_y * 2) + '')
 
     # ------------------------------------------------------------
@@ -67,7 +67,7 @@ class VirtualScene:
 
         self.layers[layer].append(sprite)
 
-# ------------------------------------------------------------
+    # ------------------------------------------------------------
 
     def erase(self, sprite):
         self.layers[sprite.layer].remove(sprite)
@@ -76,9 +76,9 @@ class VirtualScene:
         sprite.layer = None
         sprite.scene = None
 
-# ------------------------------------------------------------
+    # ------------------------------------------------------------
 
-    def gen_stream(self,debug):
+    def gen_stream(self, debug):
         self.stream = ""
         self.prtcrd = set()
         self.prtcrd_rv = set()
@@ -170,10 +170,10 @@ class VirtualScene:
             print("\33[0m\033[4;40H| \33[40m\33[37m ERASE_COMPUTING: %.3f s" % ((end_time - stream_time)))
             print("\33[0m\033[5;40H| \33[40m\33[33m TOTAL_COMPUTING_LATENCY: %.3f s" % ((end_time - start_time)))
 
-# ------------------------------------------------------------
+    # ------------------------------------------------------------
 
     def show(self, debug=False):
-        if self.frame_event == True:
+        if self.frame_event :
             genesis_time = time.time()
 
             self.gen_stream(debug)
@@ -190,10 +190,12 @@ class VirtualScene:
 
             self.frame_event = False
 
-# ------------------------------------------------------------
+    # ------------------------------------------------------------
 
     def hide(self):
         print(chr(27) + "[H" + chr(27) + "[J")
+
+
 # ------------------------------------------------------------
 
 """
